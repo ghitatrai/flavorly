@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 import '../../domain/entities/recipe.dart';
 
+part 'recipe_model.g.dart'; // <--- THIS LINE IS REQUIRED FOR HIVE GENERATION
 
 @HiveType(typeId: 0)
 class RecipeModel extends HiveObject {
