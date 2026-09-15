@@ -1,8 +1,8 @@
+import 'package:flavorly/features/shopping/presentation/pages/main_navigation_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/widgets/offline_banner.dart';
 import 'features/recipes/presentation/bloc/recipe_bloc.dart';
-import 'features/recipes/presentation/pages/home_page.dart';
 import 'injection_container.dart' as di;
 
 void main() async {
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
         builder: (context, child) {
           return OfflineBanner(child: child ?? const SizedBox());
         },
-        home: const HomePage(),
+        home: const MainNavigationPage(),
       ),
     );
   }
