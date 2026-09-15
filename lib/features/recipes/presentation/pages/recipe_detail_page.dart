@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flavorly/features/shopping/data/service/shopping_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/entities/recipe.dart';
@@ -74,11 +75,27 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                       'Ingredients Checklist',
                       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                    Text(
-                      '${_checkedIngredients.length}/${recipe.ingredients.length}',
-                      style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.bold),
-                    ),
+              TextButton.icon(
+  onPressed: () {
+    ShoppingService.instance.addItems(recipe.ingredients, recipe.name);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Exported ${recipe.ingredients.length} ingredients to Grocery List!'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  },
+  icon: const Icon(Icons.add_shopping_cart, size: 18),
+  label: const Text('Export List'),
+)
                   ],
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    '${_checkedIngredients.length}/${recipe.ingredients.length}',
+                    style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.bold),
+                  ),
                 ),
                 const SizedBox(height: 8),
                 ...recipe.ingredients.map(
