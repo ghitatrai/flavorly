@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flavorly/features/shopping/data/models/shopping_item_model.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -16,6 +17,12 @@ Future<void> initDependencies() async {
   Hive.registerAdapter(RecipeModelAdapter());
   final favoriteBox = await Hive.openBox<RecipeModel>('favorites_box');
 
+// Add this import at the top
+
+// Inside initDependencies():
+Hive.registerAdapter(ShoppingItemModelAdapter());
+final groceryBox = await Hive.openBox<ShoppingItemModel>('grocery_box');
+sl.registerLazySingleton<Box<ShoppingItemModel>>(() => groceryBox);
   // External
   sl.registerLazySingleton(() => Dio());
   sl.registerLazySingleton(() => favoriteBox);
