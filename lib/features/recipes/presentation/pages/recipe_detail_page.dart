@@ -4,14 +4,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/entities/recipe.dart';
 import '../bloc/recipe_bloc.dart';
 import '../bloc/recipe_event.dart';
+import '../widgets/cooking_timer_widget.dart';
 
-class RecipeDetailPage extends StatelessWidget {
+class RecipeDetailPage extends StatefulWidget {
   final Recipe recipe;
 
   const RecipeDetailPage({super.key, required this.recipe});
 
   @override
+  State<RecipeDetailPage> createState() => _RecipeDetailPageState();
+}
+
+class _RecipeDetailPageState extends State<RecipeDetailPage> {
+  final Set<String> _checkedIngredients = {};
+
+  @override
   Widget build(BuildContext context) {
+    final recipe = widget.recipe;
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -49,28 +59,53 @@ class RecipeDetailPage extends StatelessWidget {
               delegate: SliverChildListDelegate([
                 Row(
                   children: [
-                    Chip(label: Text(recipe.category)),
+                    if (recipe.category.isNotEmpty) Chip(label: Text(recipe.category)),
                     const SizedBox(width: 8),
-                    Chip(label: Text(recipe.area)),
+                    if (recipe.area.isNotEmpty) Chip(label: Text(recipe.area)),
                   ],
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  'Ingredients',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                const CookingTimerWidget(),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Ingredients Checklist',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      '${_checkedIngredients.length}/${recipe.ingredients.length}',
+                      style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 8),
                 ...recipe.ingredients.map(
-                  (item) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.check_circle_outline, size: 18, color: Colors.green),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(item, style: const TextStyle(fontSize: 16))),
-                      ],
-                    ),
-                  ),
+                  (item) {
+                    final isChecked = _checkedIngredients.contains(item);
+                    return CheckboxListTile(
+                      title: Text(
+                        item,
+                        style: TextStyle(
+                          decoration: isChecked ? TextDecoration.lineThrough : null,
+                          color: isChecked ? Colors.grey : Colors.black,
+                        ),
+                      ),
+                      value: isChecked,
+                      activeColor: Colors.green,
+                      contentPadding: EdgeInsets.zero,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          if (value == true) {
+                            _checkedIngredients.add(item);
+                          } else {
+                            _checkedIngredients.remove(item);
+                          }
+                        });
+                      },
+                    );
+                  },
                 ),
                 const SizedBox(height: 24),
                 const Text(
@@ -80,7 +115,7 @@ class RecipeDetailPage extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   recipe.instructions,
-                  style: const TextStyle(fontSize: 15, height: 1.5),
+                  style: const TextStyle(fontSize: 15, height: 1.6),
                 ),
                 const SizedBox(height: 40),
               ]),
