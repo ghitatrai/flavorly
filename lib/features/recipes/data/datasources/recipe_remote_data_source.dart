@@ -36,4 +36,11 @@ class RecipeRemoteDataSourceImpl implements RecipeRemoteDataSource {
     final List mealsJson = response.data['meals'];
     return mealsJson.map((json) => RecipeModel.fromJson(json)).toList();
   }
+  // Add method to get categories list
+Future<List<String>> getCategories() async {
+  final response = await dio.get('https://www.themealdb.com/api/json/v1/1/list.php?c=list');
+  if (response.data['meals'] == null) return [];
+  final List categoriesJson = response.data['meals'];
+  return categoriesJson.map((e) => e['strCategory'].toString()).toList();
+}
 }

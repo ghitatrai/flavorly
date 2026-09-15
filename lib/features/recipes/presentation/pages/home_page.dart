@@ -3,8 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/recipe_bloc.dart';
 import '../bloc/recipe_event.dart';
 import '../bloc/recipe_state.dart';
+import '../widgets/category_selector.dart';
 import '../widgets/recipe_card.dart';
-import 'favorites_page.dart';
+import '../widgets/recipe_card_skeleton.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,48 +16,49 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
+  String _selectedCategory = 'Chicken';
+
+  final List<String> _categories = [
+    'Chicken',
+    'Beef',
+    'Dessert',
+    'Pasta',
+    'Seafood',
+    'Vegetarian',
+    'Breakfast'
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Flavorly Recipes', style: TextStyle(fontWeight: FontWeight.bold)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.favorite, color: Colors.red),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const FavoritesPage()),
-              );
-            },
-          ),
-        ],
+        title: const Text('Flavorly', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search recipes (e.g. Pasta, Chicken)...',
+                hintText: 'Search recipe or ingredient...',
                 prefixIcon: const Icon(Icons.search),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () {
-                    _searchController.clear();
-                    context.read<RecipeBloc>().add(FetchRecipesEvent(query: ''));
-                  },
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
               onSubmitted: (query) {
-                if (query.trim().isNotEmpty) {
+                if (query.isNotEmpty) {
                   context.read<RecipeBloc>().add(FetchRecipesEvent(query: query));
                 }
+              },
+            ),
+            const SizedBox(height: 16),
+            CategorySelector(
+              categories: _categories,
+              selectedCategory: _selectedCategory,
+              onSelectCategory: (category) {
+                setState(() => _selectedCategory = category);
+                context.read<RecipeBloc>().add(FetchRecipesEvent(query: category));
               },
             ),
             const SizedBox(height: 16),
@@ -64,7 +66,11 @@ class _HomePageState extends State<HomePage> {
               child: BlocBuilder<RecipeBloc, RecipeState>(
                 builder: (context, state) {
                   if (state is RecipeLoadingState) {
-                    return const Center(child: CircularProgressIndicator());
+                    return ListView.separated(
+                      itemCount: 4,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (_, __) => const RecipeCardSkeleton(),
+                    );
                   } else if (state is RecipeLoadedState) {
                     if (state.recipes.isEmpty) {
                       return const Center(child: Text('No recipes found.'));
@@ -76,10 +82,8 @@ class _HomePageState extends State<HomePage> {
                         return RecipeCard(recipe: state.recipes[index]);
                       },
                     );
-                  } else if (state is RecipeErrorState) {
-                    return Center(child: Text(state.message));
                   }
-                  return const Center(child: Text('Search for delicious recipes!'));
+                  return const SizedBox();
                 },
               ),
             ),
