@@ -1,5 +1,7 @@
+import 'package:flavorly/features/recipes/presentation/pages/add_custom_recipe_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/theme/theme_service.dart';
 import '../bloc/recipe_bloc.dart';
 import '../bloc/recipe_event.dart';
 import '../bloc/recipe_state.dart';
@@ -33,6 +35,46 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Flavorly', style: TextStyle(fontWeight: FontWeight.bold)),
+        actions: [
+          PopupMenuButton<ThemeMode>(
+            icon: const Icon(Icons.brightness_6),
+            onSelected: (ThemeMode mode) {
+              ThemeService.instance.updateThemeMode(mode);
+            },
+            itemBuilder: (context) => const [
+              PopupMenuItem(
+                value: ThemeMode.system,
+                child: Row(
+                  children: [
+                    Icon(Icons.brightness_auto),
+                    SizedBox(width: 8),
+                    Text('System Default'),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: ThemeMode.light,
+                child: Row(
+                  children: [
+                    Icon(Icons.light_mode),
+                    SizedBox(width: 8),
+                    Text('Light Theme'),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: ThemeMode.dark,
+                child: Row(
+                  children: [
+                    Icon(Icons.dark_mode),
+                    SizedBox(width: 8),
+                    Text('Dark Theme'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -90,6 +132,25 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+      // Import form page:
+// import 'add_custom_recipe_page.dart';
+
+// In HomePage Scaffold:
+floatingActionButton: FloatingActionButton.extended(
+  onPressed: () async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const AddCustomRecipePage()),
+    );
+    if (result == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Custom recipe saved locally!')),
+      );
+    }
+  },
+  icon: const Icon(Icons.add),
+  label: const Text('New Recipe'),
+),
     );
   }
 }
