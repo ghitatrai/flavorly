@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flavorly/core/localization/app_localizations.dart';
 import 'package:flavorly/core/theme/theme_service.dart';
 import 'package:flavorly/features/recipes/data/models/custom_recipe_model.dart';
 import 'package:flavorly/features/recipes/data/models/recipe_note_model.dart';
@@ -67,4 +68,5 @@ ShoppingService.instance.initialize(groceryBox);
       recipeRepository: sl(),
     ),
   );
+  await AppLocalizations.instance.init();
 }

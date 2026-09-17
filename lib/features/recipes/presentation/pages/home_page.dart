@@ -1,5 +1,7 @@
+import 'package:flavorly/core/localization/app_localizations.dart';
 import 'package:flavorly/features/recipes/presentation/pages/add_custom_recipe_page.dart';
 import 'package:dio/dio.dart';
+import 'package:flavorly/features/recipes/presentation/widgets/kitchen_converter_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/theme_service.dart';
@@ -159,6 +161,31 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
+          // Import widget:
+// import '../widgets/kitchen_converter_widget.dart';
+
+// In AppBar actions list:
+IconButton(
+  icon: const Icon(Icons.calculate_outlined),
+  tooltip: 'Kitchen Converter',
+  onPressed: () {
+    showDialog(
+      context: context,
+      builder: (_) => const KitchenConverterWidget(),
+    );
+  },
+),
+PopupMenuButton<String>(
+  icon: const Icon(Icons.language),
+  onSelected: (langCode) {
+    AppLocalizations.instance.changeLanguage(langCode);
+  },
+  itemBuilder: (context) => const [
+    PopupMenuItem(value: 'en', child: Text('English')),
+    PopupMenuItem(value: 'fr', child: Text('Français')),
+    PopupMenuItem(value: 'ar', child: Text('العربية')),
+  ],
+),
         ],
       ),
       body: Padding(
