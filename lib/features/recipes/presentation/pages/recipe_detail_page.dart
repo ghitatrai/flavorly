@@ -4,6 +4,7 @@ import 'package:flavorly/features/recipes/presentation/widgets/nutrition_card_wi
 import 'package:flavorly/features/shopping/data/service/shopping_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../domain/entities/recipe.dart';
 import '../bloc/recipe_bloc.dart';
 import '../bloc/recipe_event.dart';
@@ -54,6 +55,26 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                   context.read<RecipeBloc>().add(ToggleFavoriteEvent(recipe));
                 },
               ),
+              IconButton(
+  icon: const Icon(Icons.share),
+  tooltip: 'Share Recipe',
+  onPressed: () {
+    final text = '''
+🍳 Check out this recipe on Flavorly!
+
+*${recipe.name}* (${recipe.category} - ${recipe.area})
+
+🛒 Ingredients:
+${recipe.ingredients.map((i) => '• $i').join('\n')}
+
+👨‍🍳 Instructions:
+${recipe.instructions}
+
+Shared via Flavorly App
+''';
+    Share.share(text, subject: 'Recipe: ${recipe.name}');
+  },
+),
             ],
           ),
           SliverPadding(
