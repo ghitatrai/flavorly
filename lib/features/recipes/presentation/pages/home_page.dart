@@ -1,4 +1,5 @@
 import 'package:flavorly/core/localization/app_localizations.dart';
+import 'package:flavorly/features/meal_planner/presentation/pages/meal_planner_page.dart';
 import 'package:flavorly/features/recipes/presentation/pages/add_custom_recipe_page.dart';
 import 'package:dio/dio.dart';
 import 'package:flavorly/features/recipes/presentation/widgets/kitchen_converter_widget.dart';
@@ -116,7 +117,15 @@ class _HomePageState extends State<HomePage> {
       },
       child: Scaffold(
       appBar: AppBar(
-        title: const Text('Flavorly', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: ValueListenableBuilder<String>(
+          valueListenable: AppLocalizations.instance.currentLangNotifier,
+          builder: (context, lang, _) {
+            return Text(
+              AppLocalizations.instance.translate('app_title'),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            );
+          },
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.casino),
@@ -186,6 +195,17 @@ PopupMenuButton<String>(
     PopupMenuItem(value: 'ar', child: Text('العربية')),
   ],
 ),
+// Inside AppBar actions:
+IconButton(
+  icon: const Icon(Icons.calendar_month),
+  tooltip: 'Weekly Meal Planner',
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const MealPlannerPage()),
+    );
+  },
+),
         ],
       ),
       body: Padding(
@@ -193,17 +213,26 @@ PopupMenuButton<String>(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search recipe or ingredient...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              onSubmitted: (query) {
-                if (query.isNotEmpty) {
-                  context.read<RecipeBloc>().add(FetchRecipesEvent(query: query));
-                }
+            ValueListenableBuilder<String>(
+              valueListenable: AppLocalizations.instance.currentLangNotifier,
+              builder: (context, lang, _) {
+                return TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: AppLocalizations.instance.translate('search_hint'),
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onSubmitted: (query) {
+                    if (query.isNotEmpty) {
+                      context.read<RecipeBloc>().add(
+                        FetchRecipesEvent(query: query),
+                      );
+                    }
+                  },
+                );
               },
             ),
             const SizedBox(height: 16),

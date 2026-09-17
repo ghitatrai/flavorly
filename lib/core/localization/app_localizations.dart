@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AppLocalizations {
+class AppLocalizations extends ValueNotifier<String> {
   static final AppLocalizations instance = AppLocalizations._internal();
-  AppLocalizations._internal();
+  AppLocalizations._internal() : super('en');
 
   static const String _langKey = 'user_selected_language';
-  final ValueNotifier<String> currentLangNotifier = ValueNotifier('en');
+  ValueNotifier<String> get currentLangNotifier => this;
 
   final Map<String, Map<String, String>> _localizedValues = {
     'en': {

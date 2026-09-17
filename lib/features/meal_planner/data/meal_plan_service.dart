@@ -2,7 +2,6 @@ import 'package:flavorly/features/shopping/data/service/shopping_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'meal_plan_model.dart';
-import '../../shopping/data/shopping_service.dart';
 
 class MealPlanService {
   static final MealPlanService instance = MealPlanService._internal();
