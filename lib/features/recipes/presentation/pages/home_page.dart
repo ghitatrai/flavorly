@@ -1,10 +1,13 @@
 import 'package:flavorly/features/recipes/presentation/pages/add_custom_recipe_page.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/theme_service.dart';
+import '../../data/models/recipe_model.dart';
 import '../bloc/recipe_bloc.dart';
 import '../bloc/recipe_event.dart';
 import '../bloc/recipe_state.dart';
+import 'recipe_detail_page.dart';
 import '../widgets/category_selector.dart';
 import '../widgets/recipe_card.dart';
 import '../widgets/recipe_card_skeleton.dart';
@@ -19,6 +22,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
   String _selectedCategory = 'Chicken';
+  bool _randomRecipeLoaderVisible = false;
 
   final List<String> _categories = [
     'Chicken',
@@ -30,12 +34,93 @@ class _HomePageState extends State<HomePage> {
     'Breakfast'
   ];
 
+  Future<void> _fetchAndNavigateRandom(BuildContext context) async {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final dio = Dio();
+      final response = await dio.get(
+        'https://www.themealdb.com/api/json/v1/1/random.php',
+      );
+
+      if (context.mounted) Navigator.pop(context);
+
+      if (response.statusCode == 200 && response.data['meals'] != null) {
+        final recipeModel = RecipeModel.fromJson(response.data['meals'][0]);
+        final recipe = recipeModel.toEntity();
+
+        if (context.mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => RecipeDetailPage(recipe: recipe),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Failed to fetch random recipe. Check connection!',
+            ),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocListener<RecipeBloc, RecipeState>(
+      listener: (context, state) {
+        if (state is RandomRecipeLoadingState) {
+          _randomRecipeLoaderVisible = true;
+          showDialog<void>(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => const Center(child: CircularProgressIndicator()),
+          );
+        } else if (state is RandomRecipeLoadedState) {
+          if (_randomRecipeLoaderVisible) {
+            Navigator.of(context, rootNavigator: true).pop();
+            _randomRecipeLoaderVisible = false;
+          }
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => RecipeDetailPage(recipe: state.recipe),
+            ),
+          );
+        } else if (state is RandomRecipeErrorState) {
+          if (_randomRecipeLoaderVisible) {
+            Navigator.of(context, rootNavigator: true).pop();
+            _randomRecipeLoaderVisible = false;
+          }
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Could not fetch random recipe. Check connection!',
+              ),
+            ),
+          );
+        }
+      },
+      child: Scaffold(
       appBar: AppBar(
         title: const Text('Flavorly', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.casino),
+            tooltip: 'Surprise Me!',
+            onPressed: () => _fetchAndNavigateRandom(context),
+          ),
           PopupMenuButton<ThemeMode>(
             icon: const Icon(Icons.brightness_6),
             onSelected: (ThemeMode mode) {
@@ -151,6 +236,7 @@ floatingActionButton: FloatingActionButton.extended(
   icon: const Icon(Icons.add),
   label: const Text('New Recipe'),
 ),
+      ),
     );
   }
 }

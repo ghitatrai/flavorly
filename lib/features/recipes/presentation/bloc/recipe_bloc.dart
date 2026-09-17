@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/datasources/recipe_local_data_source.dart';
 import '../../data/datasources/recipe_remote_data_source.dart';
 import '../../data/models/recipe_model.dart';
+import '../../domain/repositories/recipe_repository.dart';
 
 import 'recipe_event.dart';
 import 'recipe_state.dart';
@@ -9,14 +10,17 @@ import 'recipe_state.dart';
 class RecipeBloc extends Bloc<RecipeEvent, RecipeState> {
   final RecipeRemoteDataSource remoteDataSource;
   final RecipeLocalDataSource localDataSource;
+  final RecipeRepository recipeRepository;
 
   RecipeBloc({
     required this.remoteDataSource,
     required this.localDataSource,
+    required this.recipeRepository,
   }) : super(RecipeInitialState()) {
     on<FetchRecipesEvent>(_onFetchRecipes);
     on<ToggleFavoriteEvent>(_onToggleFavorite);
     on<FetchFavoritesEvent>(_onFetchFavorites);
+    on<FetchRandomRecipeEvent>(_onFetchRandomRecipe);
   }
 
   Future<void> _onFetchRecipes(
@@ -72,5 +76,19 @@ class RecipeBloc extends Bloc<RecipeEvent, RecipeState> {
     final favEntities =
         favModels.map((model) => model.toEntity(isFavorite: true)).toList();
     emit(FavoritesLoadedState(favEntities));
+  }
+
+  Future<void> _onFetchRandomRecipe(
+    FetchRandomRecipeEvent event,
+    Emitter<RecipeState> emit,
+  ) async {
+    emit(RandomRecipeLoadingState());
+    try {
+      final recipe = await recipeRepository.getRandomRecipe();
+      final isFavorite = localDataSource.isFavorite(recipe.id);
+      emit(RandomRecipeLoadedState(recipe.copyWith(isFavorite: isFavorite)));
+    } catch (e) {
+      emit(RandomRecipeErrorState(e.toString()));
+    }
   }
 }

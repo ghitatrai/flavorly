@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flavorly/features/recipes/domain/entities/nutrition_info.dart';
 import 'package:flavorly/features/recipes/presentation/widgets/nutrition_card_widget.dart';
+import 'package:flavorly/features/recipes/presentation/widgets/recipe_notes_widget.dart';
 import 'package:flavorly/features/shopping/data/service/shopping_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -95,6 +96,8 @@ Shared via Flavorly App
 NutritionCardWidget(
   nutrition: NutritionInfo.fromRecipe(recipe.name, recipe.ingredients.length),
 ),
+const SizedBox(height: 16),
+RecipeNotesWidget(recipeId: recipe.id),
                 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

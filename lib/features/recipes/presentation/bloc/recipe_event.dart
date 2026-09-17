@@ -18,3 +18,5 @@ class ToggleFavoriteEvent extends RecipeEvent {
 }
 
 class FetchFavoritesEvent extends RecipeEvent {}
+
+class FetchRandomRecipeEvent extends RecipeEvent {}

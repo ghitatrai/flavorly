@@ -34,3 +34,23 @@ class RecipeErrorState extends RecipeState {
   @override
   List<Object?> get props => [message];
 }
+
+class RandomRecipeLoadingState extends RecipeState {}
+
+class RandomRecipeLoadedState extends RecipeState {
+  final Recipe recipe;
+
+  RandomRecipeLoadedState(this.recipe);
+
+  @override
+  List<Object?> get props => [recipe];
+}
+
+class RandomRecipeErrorState extends RecipeState {
+  final String message;
+
+  RandomRecipeErrorState(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
