@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flavorly/core/localization/app_localizations.dart';
 import 'package:flavorly/core/theme/theme_service.dart';
+import 'package:flavorly/features/meal_planner/data/meal_plan_model.dart';
 import 'package:flavorly/features/recipes/data/models/custom_recipe_model.dart';
 import 'package:flavorly/features/recipes/data/models/recipe_note_model.dart';
 import 'package:flavorly/features/shopping/data/service/shopping_service.dart';
@@ -29,7 +30,12 @@ Future<void> initDependencies() async {
 
 // Import model:
 // Import model:
+// Import:
 
+// Inside initDependencies():
+Hive.registerAdapter(MealPlanModelAdapter());
+final mealBox = await Hive.openBox<MealPlanModel>('meal_planner_box');
+sl.registerLazySingleton<Box<MealPlanModel>>(() => mealBox);
 // Inside initDependencies():
 Hive.registerAdapter(RecipeNoteModelAdapter());
 final notesBox = await Hive.openBox<RecipeNoteModel>('recipe_notes_box');
