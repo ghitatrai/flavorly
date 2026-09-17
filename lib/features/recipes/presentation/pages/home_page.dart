@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/theme_service.dart';
 import '../../data/models/recipe_model.dart';
+import '../../domain/entities/recipe_filter.dart';
 import '../bloc/recipe_bloc.dart';
 import '../bloc/recipe_event.dart';
 import '../bloc/recipe_state.dart';
@@ -14,6 +15,7 @@ import 'recipe_detail_page.dart';
 import '../widgets/category_selector.dart';
 import '../widgets/recipe_card.dart';
 import '../widgets/recipe_card_skeleton.dart';
+import '../widgets/recipe_filter_bottom_sheet.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -131,6 +133,29 @@ class _HomePageState extends State<HomePage> {
             icon: const Icon(Icons.casino),
             tooltip: 'Surprise Me!',
             onPressed: () => _fetchAndNavigateRandom(context),
+          ),
+          IconButton(
+            icon: const Icon(Icons.filter_list),
+            tooltip: 'Advanced Filters',
+            onPressed: () {
+              showModalBottomSheet<void>(
+                context: context,
+                builder: (_) => RecipeFilterBottomSheet(
+                  initialFilter: const RecipeFilter(),
+                  onApply: (filter) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Filter applied: ${filter.dietaryPreference ?? 'All'} '
+                          '(Under ${filter.maxPrepTimeMinutes}m)',
+                        ),
+                      ),
+                    );
+                    // Apply filter criteria to the recipe search or BLoC here.
+                  },
+                ),
+              );
+            },
           ),
           PopupMenuButton<ThemeMode>(
             icon: const Icon(Icons.brightness_6),
